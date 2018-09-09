@@ -18,7 +18,7 @@ if (elem !== null) {
     }
     const httpsEnabled = window.location.protocol == "https:";
     const url = (httpsEnabled ? 'wss://' : 'ws://') + window.location.host + window.location.pathname + 'ws';
-    const args = window.location.search;
+    const args = eval("command_line_args");
     const factory = new ConnectionFactory(url, protocols);
     const wt = new WebTTY(term, factory, args, gotty_auth_token);
     const closer = wt.open();

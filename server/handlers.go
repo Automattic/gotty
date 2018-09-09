@@ -7,7 +7,6 @@ import (
 	"fmt"
 	"log"
 	"net/http"
-	"net/url"
 	"sync/atomic"
 
 	"github.com/gorilla/websocket"
@@ -105,16 +104,11 @@ func (server *Server) processWSConn(ctx context.Context, conn *websocket.Conn) e
 		return errors.New("failed to authenticate websocket connection")
 	}
 
-	queryPath := "?"
-	if server.options.PermitArguments && init.Arguments != "" {
-		queryPath = init.Arguments
+	var params []string
+	if server.options.PermitArguments {
+		params = init.Arguments
 	}
 
-	query, err := url.Parse(queryPath)
-	if err != nil {
-		return errors.Wrapf(err, "failed to parse arguments")
-	}
-	params := query.Query()
 	var slave Slave
 	slave, err = server.factory.New(params)
 	if err != nil {
@@ -188,6 +182,7 @@ func (server *Server) handleIndex(w http.ResponseWriter, r *http.Request) {
 
 	indexVars := map[string]interface{}{
 		"title": titleBuf.String(),
+		"args": r.URL.Query()["arg"],
 	}
 
 	indexBuf := new(bytes.Buffer)
